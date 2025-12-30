@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notice Board CRUD App</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f8;
+            padding: 30px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            width: 80%;
+            margin: auto;
+            box-shadow: 0 0 10px #aaa;
+        }
+        input, textarea {
+            width: 300px;
+            padding: 8px;
+            margin: 6px 0;
+            display: block;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background: #2c3e50;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Notice Board</h2>
+
+    <h3>Add / Update Notice</h3>
+    <input id="id" placeholder="Notice ID (for update)">
+    <input id="title" placeholder="Title">
+    <textarea id="description" placeholder="Description"></textarea>
+
+    <button onclick="addNotice()">Add</button>
+    <button onclick="updateNotice()">Update</button>
+
+    <h3>Delete Notice</h3>
+    <input id="deleteId" placeholder="Notice ID">
+    <button onclick="deleteNotice()">Delete</button>
+
+    <h3>All Notices</h3>
+    <button onclick="getNotices()">Load Notices</button>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th><th>Title</th><th>Description</th>
+        </tr>
+        </thead>
+        <tbody id="noticeTable"></tbody>
+    </table>
+</div>
+
+<script>
+    // ⚠️ CHANGE PORT IF NEEDED
+    const baseUrl = "http://localhost:8091/notices";
+
+    function addNotice() {
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+
+        fetch(baseUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, description })
+        })
+            .then(r => r.text())
+            .then(alert)
+            .catch(err => alert("ERROR: " + err));
+    }
+
+    function updateNotice() {
+        const id = document.getElementById("id").value;
+
+        fetch(`${baseUrl}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: title.value,
+                description: description.value
+            })
+        })
+            .then(r => r.text())
+            .then(alert);
+    }
+
+    function deleteNotice() {
+        const id = document.getElementById("deleteId").value;
+
+        fetch(`${baseUrl}/${id}`, { method: "DELETE" })
+            .then(r => r.text())
+            .then(alert);
+    }
+
+    function getNotices() {
+        fetch(baseUrl)
+            .then(r => r.json())
+            .then(data => {
+                let rows = "";
+                data.forEach(n => {
+                    rows += `<tr>
+                        <td>${n.id}</td>
+                        <td>${n.title}</td>
+                        <td>${n.description}</td>
+                    </tr>`;
+                });
+                noticeTable.innerHTML = rows;
+            })
+            .catch(err => alert("ERROR: " + err));
+    }
+</script>
+
+</body>
+</html>
